@@ -65,7 +65,15 @@ def status():
 
     if status["system"].lower() == "linux":
         # platform-specific targetting to alleviate bugginess
-        status["hw_temps"] = psutil.sensors_temperatures()
+
+        status["hw_temps"] = []
+        # https://github.com/giampaolo/psutil/blob/master/scripts/temperatures.py
+        for name, entries in psutil.sensors_temperatures():
+            for entry in entries:
+                status["hw_temps"].append({
+                    "name": entry.label or name,
+                    "current": entry.current })
+
         status["load_average"] = [
             x / psutil.cpu_count() * 100
             for x in psutil.getloadavg()]
