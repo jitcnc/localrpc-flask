@@ -68,7 +68,7 @@ def status():
 
         status["hw_temps"] = []
         # https://github.com/giampaolo/psutil/blob/master/scripts/temperatures.py
-        for name, entries in psutil.sensors_temperatures():
+        for name, entries in psutil.sensors_temperatures().items():
             for entry in entries:
                 status["hw_temps"].append({
                     "name": entry.label or name,
