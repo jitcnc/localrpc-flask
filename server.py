@@ -13,6 +13,17 @@ app = Flask(__name__)
 LONGPOLL_TIMEOUT = 60
 LONGPOLL_QUEUE = []
 
+@app.route('/idling/<state>/<int:seconds>/')
+def idling(state, seconds):
+    state = state.lower()
+    if state == "yes":
+        os.system("vcgencmd display_power 0")
+    elif state == "no":
+        os.system("vcgencmd display_power 1")
+    else:
+        state = "unknown"
+    return state
+
 @app.route('/status/')
 def status():
     status = {
