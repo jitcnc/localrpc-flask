@@ -2,6 +2,7 @@ import datetime
 import os
 import platform
 import psutil
+import shutil
 import time
 
 from socket import gethostname, AF_INET, AF_INET6
@@ -13,16 +14,35 @@ app = Flask(__name__)
 LONGPOLL_TIMEOUT = 60
 LONGPOLL_QUEUE = []
 
+
+def set_display_power(ON):
+    if shutil.which("vcgencmd"):
+        # raspberry pi + videocore
+        # https://www.raspberrypi.org/documentation/raspbian/applications/vcgencmd.md
+        null_redirect = "> /dev/null 2>&1"
+        if ON:
+            os.system("{} {}".format(
+                "vcgencmd display_power 1",
+                null_redirect))
+        else:
+            os.system("{} {}".format(
+                "vcgencmd display_power 0",
+                null_redirect))
+    else:
+        print("set_display_power({}): no available methods".format(ON))
+
+
 @app.route('/idling/<state>/<int:seconds>/')
 def idling(state, seconds):
     state = state.lower()
     if state == "yes":
-        os.system("vcgencmd display_power 0")
+        set_display_power(False)
     elif state == "no":
-        os.system("vcgencmd display_power 1")
+        set_display_power(True)
     else:
         state = "unknown"
-    return state
+
+    return jsonify(state)
 
 @app.route('/status/')
 def status():
